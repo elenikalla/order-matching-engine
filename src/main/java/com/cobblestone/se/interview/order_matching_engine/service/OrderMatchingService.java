@@ -1,12 +1,13 @@
 package com.cobblestone.se.interview.order_matching_engine.service;
 
-import com.example.ordermatching.model.Order;
-import com.example.ordermatching.repository.OrderRepository;
+import com.cobblestone.se.interview.order_matching_engine.dto.OrderRequestDTO;
+import com.cobblestone.se.interview.order_matching_engine.model.Order;
+import com.cobblestone.se.interview.order_matching_engine.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderMatchingService {
@@ -16,15 +17,27 @@ public class OrderMatchingService {
     public OrderMatchingService(OrderRepository repository) {
         this.repository = repository;
     }
+    public Order handle(OrderRequestDTO dto) {
+        Order order = new Order();
+        order.setSymbol(dto.symbol);
+        order.setPrice(dto.price);
+        order.setQuantity(dto.quantity);
+        order.setType(dto.type);
+        order.setStatus("PENDING");
+
+        order.setClientOrderId(dto.clientOrderId);
+        return addOrder(order);
+    }
 
     public Order addOrder(Order order) {
+        order.setStatus("PENDING");
         Order savedOrder = repository.save(order);
         if (order.getType().equalsIgnoreCase("BUY")) {
             matchBuyOrder(savedOrder);
         } else {
             matchSellOrder(savedOrder);
         }
-        return savedOrder;
+        return repository.save(savedOrder);
     }
 
     private void matchBuyOrder(Order buyOrder) {
@@ -71,11 +84,7 @@ public class OrderMatchingService {
         else repository.delete(sellOrder);
     }
 
-    public Order getOrderById(Long id) {
-        return repository.findById(id).orElse(null);
-    }
-
-    public List<Order> getOrdersBySymbol(String symbol) {
-        return repository.findBySymbolIgnoreCase(symbol);
+    public Optional<Order> findOptionalByClientOrderId(String clientOrderId) {
+        return repository.findByClientOrderId(clientOrderId);
     }
 }
