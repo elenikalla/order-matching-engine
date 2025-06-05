@@ -1,7 +1,22 @@
-export default function App() {
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
+import Home from "./pages/Home";
+import Orders from "./pages/Orders";
+
+const App = () => {
   return (
-    <div className="min-h-screen bg-white text-red-500 p-10 text-5xl">
-      Tailwind is working!
-    </div>
+    <Router>
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 bg-gray-100 min-h-screen">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/orders" element={<Orders />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
-}
+};
+
+export default App;

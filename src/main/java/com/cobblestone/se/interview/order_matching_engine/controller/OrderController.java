@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,5 +46,10 @@ public class OrderController {
 
         Order order = optionalOrder.get();
         return ResponseEntity.ok(new OrderResponseDTO(order.getId(), order.getStatus(), order.getSymbol()));
+    }
+    @GetMapping
+    public ResponseEntity<List<Order>> getAllOrders() {
+        List<Order> orders = orderService.getAllOrders();
+        return ResponseEntity.ok(orders);
     }
 }

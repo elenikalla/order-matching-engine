@@ -87,4 +87,7 @@ public class OrderMatchingService {
     public Optional<Order> findOptionalByClientOrderId(String clientOrderId) {
         return repository.findByClientOrderId(clientOrderId);
     }
+    public List<Order> getAllOrders() {
+        return repository.findAll();
+    }
 }
