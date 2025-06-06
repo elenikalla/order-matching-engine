@@ -51,17 +51,25 @@ const OrderList = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredOrders.map((order) => (
-            <tr key={order.id}>
-              <td className="p-2 border">{order.id}</td>
-              <td className="p-2 border">{order.clientOrderId}</td>
-              <td className="p-2 border">{order.symbol}</td>
-              <td className="p-2 border">{order.type}</td>
-              <td className="p-2 border">{order.price}</td>
-              <td className="p-2 border">{order.quantity}</td>
-              <td className="p-2 border">{order.status}</td>
+        {filteredOrders.length === 0 ? (
+            <tr>
+            <td colSpan="7" className="text-center p-4 text-gray-500">
+                No orders found.
+            </td>
             </tr>
-          ))}
+        ) : (
+            filteredOrders.map((order) => (
+            <tr key={order.id}>
+                <td className="p-2 border">{order.id}</td>
+                <td className="p-2 border">{order.clientOrderId}</td>
+                <td className="p-2 border">{order.symbol}</td>
+                <td className="p-2 border">{order.type}</td>
+                <td className="p-2 border">{order.price}</td>
+                <td className="p-2 border">{order.quantity}</td>
+                <td className="p-2 border">{order.status}</td>
+            </tr>
+            ))
+        )}
         </tbody>
       </table>
     </div>

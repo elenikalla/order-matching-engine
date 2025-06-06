@@ -17,30 +17,37 @@ export default function OrderForm() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError(null);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitting(true);
+  setError(null);
 
-    try {
-      const response = await fetch("http://localhost:8080/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+  try {
+    const response = await fetch("http://localhost:8080/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
 
-      if (!response.ok) throw new Error("Order submission failed");
+    if (!response.ok) throw new Error("Order submission failed");
 
-      const data = await response.json();
-      setClientOrderId(data.clientOrderId);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    const data = await response.json();
+    setClientOrderId(data.clientOrderId);
+
+    setFormData({
+      symbol: "",
+      price: "",
+      quantity: "",
+      type: "BUY",
+    });
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded">

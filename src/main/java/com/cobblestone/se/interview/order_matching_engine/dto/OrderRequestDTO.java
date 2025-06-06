@@ -5,7 +5,7 @@ public class OrderRequestDTO {
     public String symbol;
     public double price;
     public int quantity;
-    public String type; // BUY or SELL
+    public String type;
 
     public String clientOrderId;
 

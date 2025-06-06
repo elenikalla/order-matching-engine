@@ -1,6 +1,9 @@
 package com.cobblestone.se.interview.order_matching_engine.model;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -26,7 +29,9 @@ public class Order {
     private int quantity;
     private String type; // BUY or SELL
     private String status; // PENDING, PARTIALLY_FILLED, FILLED
-    public String clientOrderId;
-
+    @Column(unique = true)
+    private String clientOrderId;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
 }

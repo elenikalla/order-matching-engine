@@ -1,8 +1,6 @@
 package com.cobblestone.se.interview.order_matching_engine.dto;
 
 public class QueuedResponseDTO {
-
-
         public String clientOrderId;
         public String status;
         public String message;

@@ -1,4 +1,4 @@
-package com.cobblestone.se.interview.order_matching_engine.service.kafka;
+package com.cobblestone.se.interview.order_matching_engine.kafka;
 
 import com.cobblestone.se.interview.order_matching_engine.dto.OrderRequestDTO;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -14,6 +14,8 @@ public class OrderKafkaProducer {
     }
 
     public void sendOrder(OrderRequestDTO dto) {
-        kafkaTemplate.send("orders", dto.symbol, dto);
+        String topic = "order-topic";
+        String key = dto.symbol;  // ensures all orders for same symbol go to same partition
+        kafkaTemplate.send(topic, key, dto);
     }
 }

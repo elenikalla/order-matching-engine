@@ -1,4 +1,4 @@
-package com.cobblestone.se.interview.order_matching_engine.service.kafka;
+package com.cobblestone.se.interview.order_matching_engine.kafka;
 
 import com.cobblestone.se.interview.order_matching_engine.dto.OrderRequestDTO;
 import com.cobblestone.se.interview.order_matching_engine.service.OrderMatchingService;
@@ -14,8 +14,9 @@ public class OrderKafkaConsumer {
         this.matchingService = matchingService;
     }
 
-    @KafkaListener(topics = "orders", groupId = "order-matcher", containerFactory = "orderKafkaListenerContainerFactory")
+    @KafkaListener(topics = "order-topic", groupId = "order-matching")
     public void consume(OrderRequestDTO dto) {
+        System.out.println("Consumed Order: " + dto);
         matchingService.handle(dto);
     }
 }

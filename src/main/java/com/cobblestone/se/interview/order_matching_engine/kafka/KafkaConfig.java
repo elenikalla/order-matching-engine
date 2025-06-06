@@ -1,4 +1,4 @@
-package com.cobblestone.se.interview.order_matching_engine.config;
+package com.cobblestone.se.interview.order_matching_engine.kafka;
 
 import com.cobblestone.se.interview.order_matching_engine.dto.OrderRequestDTO;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
