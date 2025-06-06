@@ -15,7 +15,7 @@ public class OrderKafkaProducer {
 
     public void sendOrder(OrderRequestDTO dto) {
         String topic = "order-topic";
-        String key = dto.symbol;  // ensures all orders for same symbol go to same partition
+        String key = dto.symbol;
         kafkaTemplate.send(topic, key, dto);
     }
 }

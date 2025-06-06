@@ -2,11 +2,15 @@ package com.cobblestone.se.interview.order_matching_engine.service;
 
 import com.cobblestone.se.interview.order_matching_engine.dto.OrderRequestDTO;
 import com.cobblestone.se.interview.order_matching_engine.model.Order;
+import com.cobblestone.se.interview.order_matching_engine.model.enums.OrderStatus;
+import com.cobblestone.se.interview.order_matching_engine.model.enums.OrderType;
 import com.cobblestone.se.interview.order_matching_engine.model.Trade;
 import com.cobblestone.se.interview.order_matching_engine.repository.OrderRepository;
 import com.cobblestone.se.interview.order_matching_engine.repository.TradeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -15,41 +19,44 @@ import java.util.Optional;
 @Service
 public class OrderMatchingService {
 
-    private final OrderRepository orderRepository;
+    private static final Logger logger = LoggerFactory.getLogger(OrderMatchingService.class);
 
+    private final OrderRepository orderRepository;
     private final TradeRepository tradeRepository;
 
     public OrderMatchingService(OrderRepository orderRepository, TradeRepository tradeRepository) {
         this.orderRepository = orderRepository;
         this.tradeRepository = tradeRepository;
     }
+
     public Order handle(OrderRequestDTO dto) {
         Order order = new Order();
         order.setSymbol(dto.symbol);
         order.setPrice(dto.price);
         order.setQuantity(dto.quantity);
         order.setType(dto.type);
-        order.setStatus("PENDING");
+        order.setStatus(OrderStatus.PENDING);
         order.setClientOrderId(dto.clientOrderId);
         return addOrder(order);
     }
 
+    @Transactional
     public Order addOrder(Order order) {
-        order.setStatus("PENDING");
+        order.setStatus(OrderStatus.PENDING);
         Order savedOrder = orderRepository.save(order);
-        if (order.getType().equalsIgnoreCase("BUY")) {
+        if (order.getType() == OrderType.BUY) {
             matchBuyOrder(savedOrder);
         } else {
             matchSellOrder(savedOrder);
         }
-        return orderRepository.save(savedOrder);
+        return savedOrder;
     }
 
     private void matchBuyOrder(Order buyOrder) {
         boolean wasMatched = false;
 
         List<Order> sells = orderRepository.findBySymbolIgnoreCase(buyOrder.getSymbol()).stream()
-                .filter(o -> o.getType().equals("SELL"))
+                .filter(o -> o.getType() == OrderType.SELL)
                 .sorted(Comparator.comparingDouble(Order::getPrice).thenComparing(Order::getCreatedAt))
                 .toList();
 
@@ -64,17 +71,17 @@ public class OrderMatchingService {
 
                 recordTrade(buyOrder.getSymbol(), buyOrder.getId().toString(), sell.getId().toString(), sell.getPrice(), tradedQty);
 
-                sell.setStatus(sell.getQuantity() == 0 ? "FILLED" : "PARTIALLY_FILLED");
+                sell.setStatus(sell.getQuantity() == 0 ? OrderStatus.FILLED : OrderStatus.PARTIALLY_FILLED);
                 orderRepository.save(sell);
             }
         }
 
         if (!wasMatched) {
-            buyOrder.setStatus("PENDING");
+            buyOrder.setStatus(OrderStatus.PENDING);
         } else if (buyOrder.getQuantity() > 0) {
-            buyOrder.setStatus("PARTIALLY_FILLED");
+            buyOrder.setStatus(OrderStatus.PARTIALLY_FILLED);
         } else {
-            buyOrder.setStatus("FILLED");
+            buyOrder.setStatus(OrderStatus.FILLED);
         }
 
         orderRepository.save(buyOrder);
@@ -84,7 +91,7 @@ public class OrderMatchingService {
         boolean wasMatched = false;
 
         List<Order> buys = orderRepository.findBySymbolIgnoreCase(sellOrder.getSymbol()).stream()
-                .filter(o -> o.getType().equals("BUY"))
+                .filter(o -> o.getType() == OrderType.BUY)
                 .sorted(Comparator.comparingDouble(Order::getPrice).reversed().thenComparing(Order::getCreatedAt))
                 .toList();
 
@@ -99,17 +106,18 @@ public class OrderMatchingService {
 
                 recordTrade(sellOrder.getSymbol(), buy.getId().toString(), sellOrder.getId().toString(), buy.getPrice(), tradedQty);
 
-                buy.setStatus(buy.getQuantity() == 0 ? "FILLED" : "PARTIALLY_FILLED");
+                buy.setStatus(buy.getQuantity() == 0 ? OrderStatus.FILLED : OrderStatus.PARTIALLY_FILLED);
                 orderRepository.save(buy);
             }
         }
 
-        if (!wasMatched) sellOrder.setStatus("PENDING");
-        else if (sellOrder.getQuantity() > 0) sellOrder.setStatus("PARTIALLY_FILLED");
-        else sellOrder.setStatus("FILLED");
+        if (!wasMatched) sellOrder.setStatus(OrderStatus.PENDING);
+        else if (sellOrder.getQuantity() > 0) sellOrder.setStatus(OrderStatus.PARTIALLY_FILLED);
+        else sellOrder.setStatus(OrderStatus.FILLED);
 
         orderRepository.save(sellOrder);
     }
+
     private void recordTrade(String symbol, String buyOrderId, String sellOrderId, double price, int quantity) {
         Trade trade = new Trade();
         trade.setSymbol(symbol);
@@ -119,7 +127,10 @@ public class OrderMatchingService {
         trade.setQuantity(quantity);
         trade.setTimestamp(LocalDateTime.now());
         tradeRepository.save(trade);
+
+        logger.info("Trade recorded: {} {} @ {}", symbol, quantity, price);
     }
+
     public Optional<Order> findOptionalByClientOrderId(String clientOrderId) {
         return orderRepository.findByClientOrderId(clientOrderId);
     }

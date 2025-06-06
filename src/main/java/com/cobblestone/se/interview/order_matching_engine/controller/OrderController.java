@@ -4,7 +4,7 @@ import com.cobblestone.se.interview.order_matching_engine.dto.OrderRequestDTO;
 import com.cobblestone.se.interview.order_matching_engine.dto.OrderResponseDTO;
 import com.cobblestone.se.interview.order_matching_engine.dto.QueuedResponseDTO;
 import com.cobblestone.se.interview.order_matching_engine.model.Order;
-import com.cobblestone.se.interview.order_matching_engine.model.Trade;
+import com.cobblestone.se.interview.order_matching_engine.model.enums.OrderStatus;
 import com.cobblestone.se.interview.order_matching_engine.repository.TradeRepository;
 import com.cobblestone.se.interview.order_matching_engine.service.OrderMatchingService;
 import com.cobblestone.se.interview.order_matching_engine.kafka.OrderKafkaProducer;
@@ -35,7 +35,7 @@ public class OrderController {
             dto.clientOrderId = UUID.randomUUID().toString();
         }
         kafkaProducer.sendOrder(dto);
-        return ResponseEntity.ok(new QueuedResponseDTO(dto.clientOrderId,"PENDING","Order submitted"));
+        return ResponseEntity.ok(new QueuedResponseDTO(dto.clientOrderId,OrderStatus.PENDING,"Order submitted"));
     }
 
     @GetMapping("/client/{clientOrderId}")
@@ -43,7 +43,7 @@ public class OrderController {
         Optional<Order> optionalOrder = orderService.findOptionalByClientOrderId(clientOrderId);
 
         if (optionalOrder.isEmpty()) {
-            return ResponseEntity.ok(new OrderResponseDTO(null, "PENDING", "Order not received yet",null));
+            return ResponseEntity.ok(new OrderResponseDTO(null, OrderStatus.PENDING, "Order not received yet",null));
         }
 
         Order order = optionalOrder.get();
