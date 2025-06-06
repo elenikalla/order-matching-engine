@@ -36,17 +36,30 @@ A Java + React-based matching engine that processes buy/sell orders in real-time
    ```bash
    git clone https://github.com/elenikalla/order-matching-engine.git
    cd order-matching-engine
+   ```
 
-2. Start Kafka locally
-   Make sure kafka is running on : localhost:9092
+2. **Start Kafka locally**  
+   Make sure Kafka is running on `localhost:9092`.
 
-3. Run the Spring Boot app 
-    The backend will be available at: http://localhost:8080
+3. **Run the Spring Boot application**  
+   The backend will be available at: [http://localhost:8080](http://localhost:8080)
+
+---
 
 ### Frontend (React)
 
-1. cd order-ui
-2.npm install
-3.npm run dev 
+1. **Navigate to the frontend directory**
+   ```bash
+   cd order-ui
+   ```
 
-The frontend will be available at: http://localhost:5173
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+   The frontend will be available at: [http://localhost:5173](http://localhost:5173)
