@@ -42,7 +42,7 @@ A Java + React-based matching engine that processes buy/sell orders in real-time
 3. Run the Spring Boot app 
     The backend will be available at: http://localhost:8080
 
-###F Frontend (React)
+### Frontend (React)
 
 1. cd order-ui
 2.npm install
