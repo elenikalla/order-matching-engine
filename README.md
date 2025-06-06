@@ -32,7 +32,8 @@ A Java + React-based matching engine that processes buy/sell orders in real-time
 
 ### Backend (Spring Boot)
 
-1.Clone the repository
+1. **Clone the repository**
+   ```bash
    git clone https://github.com/elenikalla/order-matching-engine.git
    cd order-matching-engine
 
