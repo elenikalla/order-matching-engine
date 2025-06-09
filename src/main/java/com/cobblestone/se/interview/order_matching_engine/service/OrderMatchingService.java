@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,12 +52,12 @@ public class OrderMatchingService {
     }
 
     private void matchBuyOrder(Order buyOrder) {
-        boolean wasMatched = false;
+        boolean matched = false;
 
-        List<Order> sells = orderRepository.findBySymbolIgnoreCase(buyOrder.getSymbol()).stream()
-                .filter(o -> o.getType() == OrderType.SELL)
-                .sorted(Comparator.comparingDouble(Order::getPrice).thenComparing(Order::getCreatedAt))
-                .toList();
+        List<Order> sells = orderRepository
+                .findBySymbolIgnoreCaseAndTypeAndStatusNotAndQuantityGreaterThanOrderByPriceAscCreatedAtAsc(
+                        buyOrder.getSymbol(), OrderType.SELL, OrderStatus.FILLED, 0
+                );
 
         for (Order sell : sells) {
             if (buyOrder.getQuantity() == 0) break;
@@ -67,16 +66,17 @@ public class OrderMatchingService {
 
                 buyOrder.setQuantity(buyOrder.getQuantity() - tradedQty);
                 sell.setQuantity(sell.getQuantity() - tradedQty);
-                wasMatched = true;
 
                 recordTrade(buyOrder.getSymbol(), buyOrder.getId().toString(), sell.getId().toString(), sell.getPrice(), tradedQty);
 
                 sell.setStatus(sell.getQuantity() == 0 ? OrderStatus.FILLED : OrderStatus.PARTIALLY_FILLED);
                 orderRepository.save(sell);
+
+                matched = true;
             }
         }
 
-        if (!wasMatched) {
+        if (!matched) {
             buyOrder.setStatus(OrderStatus.PENDING);
         } else if (buyOrder.getQuantity() > 0) {
             buyOrder.setStatus(OrderStatus.PARTIALLY_FILLED);
@@ -86,14 +86,13 @@ public class OrderMatchingService {
 
         orderRepository.save(buyOrder);
     }
-
     private void matchSellOrder(Order sellOrder) {
-        boolean wasMatched = false;
+        boolean matched = false;
 
-        List<Order> buys = orderRepository.findBySymbolIgnoreCase(sellOrder.getSymbol()).stream()
-                .filter(o -> o.getType() == OrderType.BUY)
-                .sorted(Comparator.comparingDouble(Order::getPrice).reversed().thenComparing(Order::getCreatedAt))
-                .toList();
+        List<Order> buys = orderRepository
+                .findBySymbolIgnoreCaseAndTypeAndStatusNotAndQuantityGreaterThanOrderByPriceDescCreatedAtAsc(
+                        sellOrder.getSymbol(), OrderType.BUY, OrderStatus.FILLED, 0
+                );
 
         for (Order buy : buys) {
             if (sellOrder.getQuantity() == 0) break;
@@ -102,22 +101,26 @@ public class OrderMatchingService {
 
                 sellOrder.setQuantity(sellOrder.getQuantity() - tradedQty);
                 buy.setQuantity(buy.getQuantity() - tradedQty);
-                wasMatched = true;
 
                 recordTrade(sellOrder.getSymbol(), buy.getId().toString(), sellOrder.getId().toString(), buy.getPrice(), tradedQty);
 
                 buy.setStatus(buy.getQuantity() == 0 ? OrderStatus.FILLED : OrderStatus.PARTIALLY_FILLED);
                 orderRepository.save(buy);
+
+                matched = true;
             }
         }
 
-        if (!wasMatched) sellOrder.setStatus(OrderStatus.PENDING);
-        else if (sellOrder.getQuantity() > 0) sellOrder.setStatus(OrderStatus.PARTIALLY_FILLED);
-        else sellOrder.setStatus(OrderStatus.FILLED);
+        if (!matched) {
+            sellOrder.setStatus(OrderStatus.PENDING);
+        } else if (sellOrder.getQuantity() > 0) {
+            sellOrder.setStatus(OrderStatus.PARTIALLY_FILLED);
+        } else {
+            sellOrder.setStatus(OrderStatus.FILLED);
+        }
 
         orderRepository.save(sellOrder);
     }
-
     private void recordTrade(String symbol, String buyOrderId, String sellOrderId, double price, int quantity) {
         Trade trade = new Trade();
         trade.setSymbol(symbol);

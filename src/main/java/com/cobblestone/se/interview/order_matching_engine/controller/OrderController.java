@@ -8,13 +8,15 @@ import com.cobblestone.se.interview.order_matching_engine.model.enums.OrderStatu
 import com.cobblestone.se.interview.order_matching_engine.repository.TradeRepository;
 import com.cobblestone.se.interview.order_matching_engine.service.OrderMatchingService;
 import com.cobblestone.se.interview.order_matching_engine.kafka.OrderKafkaProducer;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
+@Validated
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
@@ -30,7 +32,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<QueuedResponseDTO> placeOrder(@RequestBody OrderRequestDTO dto) {
+    public ResponseEntity<QueuedResponseDTO> placeOrder(@Valid @RequestBody OrderRequestDTO dto) {
         if (dto.clientOrderId == null) {
             dto.clientOrderId = UUID.randomUUID().toString();
         }

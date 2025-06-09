@@ -97,13 +97,19 @@ export default function OrderForm() {
         >
           {submitting ? "Submitting..." : "Submit Order"}
         </button>
-
         {clientOrderId && (
-          <div className="text-green-600 font-medium">
-            Order submitted! Client Order ID: {clientOrderId}
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mt-4">
+            <strong className="font-bold">Success:</strong> Order submitted!
+            <br />
+            <span className="block text-sm">Client Order ID: <code>{clientOrderId}</code></span>
+            <button
+              className="absolute top-0 bottom-0 right-0 px-4 py-3"
+              onClick={() => setClientOrderId(null)}
+            >
+              <span className="text-green-700 text-xl">&times;</span>
+            </button>
           </div>
         )}
-
         {error && <div className="text-red-500">Error: {error}</div>}
       </form>
     </div>

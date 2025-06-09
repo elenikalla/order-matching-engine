@@ -1,5 +1,6 @@
 package com.cobblestone.se.interview.order_matching_engine.controller;
 
+import com.cobblestone.se.interview.order_matching_engine.dto.TradeDTO;
 import com.cobblestone.se.interview.order_matching_engine.model.Trade;
 import com.cobblestone.se.interview.order_matching_engine.repository.TradeRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,17 @@ public class TradeController {
     }
 
     @GetMapping
-    public List<Trade> getAllTrades() {
-        return tradeRepository.findAll();
+    public List<TradeDTO> getAllTrades() {
+        return tradeRepository.findAll().stream()
+                .map(trade -> new TradeDTO(
+                        trade.getId(),
+                        trade.getSymbol(),
+                        trade.getQuantity(),
+                        trade.getPrice(),
+                        trade.getBuyOrderId(),
+                        trade.getSellOrderId(),
+                        trade.getTimestamp()
+                ))
+                .toList();
     }
 }

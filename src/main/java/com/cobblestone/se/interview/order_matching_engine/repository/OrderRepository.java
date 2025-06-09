@@ -2,15 +2,22 @@ package com.cobblestone.se.interview.order_matching_engine.repository;
 
 
 import com.cobblestone.se.interview.order_matching_engine.model.Order;
+import com.cobblestone.se.interview.order_matching_engine.model.enums.OrderStatus;
+import com.cobblestone.se.interview.order_matching_engine.model.enums.OrderType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-@Repository
-public interface OrderRepository extends JpaRepository<Order, Long> {
-    List<Order> findBySymbolIgnoreCase(String symbol);
+public interface OrderRepository extends JpaRepository<Order, UUID> {
+
     Optional<Order> findByClientOrderId(String clientOrderId);
 
+    // 🔽 Επιστρέφει ΜΟΝΟ ενεργές εντολές για matching
+    List<Order> findBySymbolIgnoreCaseAndTypeAndStatusNotAndQuantityGreaterThanOrderByPriceAscCreatedAtAsc(
+            String symbol, OrderType type, OrderStatus status, int quantity);
+
+    List<Order> findBySymbolIgnoreCaseAndTypeAndStatusNotAndQuantityGreaterThanOrderByPriceDescCreatedAtAsc(
+            String symbol, OrderType type, OrderStatus status, int quantity);
 }

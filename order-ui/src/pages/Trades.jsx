@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 const Trades = () => {
   const [trades, setTrades] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [symbolFilter, setSymbolFilter] = useState("");
   const [orderIdFilter, setOrderIdFilter] = useState("");
 
@@ -11,11 +10,11 @@ const Trades = () => {
     const fetchTrades = async () => {
       try {
         const response = await fetch("http://localhost:8080/trades");
-        if (!response.ok) throw new Error("Failed to fetch trades");
+        if (!response.ok) throw new Error("Failed");
         const data = await response.json();
         setTrades(data);
-      } catch (err) {
-        setError(err.message);
+      } catch {
+        setTrades([]);
       } finally {
         setLoading(false);
       }
@@ -54,44 +53,46 @@ const Trades = () => {
         />
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p className="text-red-500">Error: {error}</p>
-      ) : (
-        <table className="min-w-full border text-sm">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-2 border">Symbol</th>
-              <th className="p-2 border">Quantity</th>
-              <th className="p-2 border">Price</th>
-              <th className="p-2 border">Buy Order ID</th>
-              <th className="p-2 border">Sell Order ID</th>
-              <th className="p-2 border">Timestamp</th>
+      <table className="min-w-full border text-sm">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="p-2 border">ID</th>
+            <th className="p-2 border">Symbol</th>
+            <th className="p-2 border">Quantity</th>
+            <th className="p-2 border">Price</th>
+            <th className="p-2 border">Buy Order ID</th>
+            <th className="p-2 border">Sell Order ID</th>
+            <th className="p-2 border">Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr>
+              <td colSpan="7" className="text-center p-4 text-gray-500">
+                Loading...
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {filteredTrades.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="text-center p-4 text-gray-500">
-                  No trades found.
-                </td>
+          ) : filteredTrades.length === 0 ? (
+            <tr>
+              <td colSpan="7" className="text-center p-4 text-gray-500">
+                No trades found.
+              </td>
+            </tr>
+          ) : (
+            filteredTrades.map((trade, index) => (
+              <tr key={index}>
+                <td className="p-2 border">{trade.id}</td>
+                <td className="p-2 border">{trade.symbol}</td>
+                <td className="p-2 border">{trade.quantity}</td>
+                <td className="p-2 border">{trade.price}</td>
+                <td className="p-2 border">{trade.buyOrderId}</td>
+                <td className="p-2 border">{trade.sellOrderId}</td>
+                <td className="p-2 border">{new Date(trade.timestamp).toLocaleString()}</td>
               </tr>
-            ) : (
-              filteredTrades.map((trade, index) => (
-                <tr key={index}>
-                  <td className="p-2 border">{trade.symbol}</td>
-                  <td className="p-2 border">{trade.quantity}</td>
-                  <td className="p-2 border">{trade.price}</td>
-                  <td className="p-2 border">{trade.buyOrderId}</td>
-                  <td className="p-2 border">{trade.sellOrderId}</td>
-                  <td className="p-2 border">{new Date(trade.timestamp).toLocaleString()}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      )}
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
