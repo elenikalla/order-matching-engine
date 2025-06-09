@@ -87,7 +87,7 @@ const Trades = () => {
                 <td className="p-2 border">{trade.price}</td>
                 <td className="p-2 border">{trade.buyOrderId}</td>
                 <td className="p-2 border">{trade.sellOrderId}</td>
-                <td className="p-2 border">{new Date(trade.timestamp).toLocaleString()}</td>
+                <td className="p-2 border">{new Date(trade.createdAt).toLocaleString()}</td>
               </tr>
             ))
           )}

@@ -2,16 +2,27 @@ import { useEffect, useState } from "react";
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [symbolFilter, setSymbolFilter] = useState("");
   const [clientOrderIdFilter, setClientOrderIdFilter] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8080/orders")
-      .then((res) => res.json())
-      .then((data) => setOrders(data))
-      .catch((err) => console.error("Error fetching orders:", err));
-  }, []);
+    const fetchOrders = async () => {
+    try{
+      const response = await fetch("http://localhost:8080/orders")
+      if (!response.ok) throw new Error("Failed");
+      const data = await response.json();
+      setOrders(data);
+      } catch {
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchOrders();
+  }, []);
+    
   const filteredOrders = orders.filter((order) => {
     return (
       (symbolFilter === "" || order.symbol.toLowerCase().includes(symbolFilter.toLowerCase())) &&
@@ -48,16 +59,23 @@ const OrderList = () => {
             <th className="p-2 border">Price</th>
             <th className="p-2 border">Quantity</th>
             <th className="p-2 border">Status</th>
+            <th className="p-2 border">Timestamp</th>
           </tr>
         </thead>
         <tbody>
-        {filteredOrders.length === 0 ? (
+          {loading ? (
             <tr>
-            <td colSpan="7" className="text-center p-4 text-gray-500">
-                No orders found.
-            </td>
+              <td colSpan="7" className="text-center p-4 text-gray-500">
+                Loading...
+              </td>
             </tr>
-        ) : (
+            ) : filteredOrders.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="text-center p-4 text-gray-500">
+                  No orders found.
+                </td>
+              </tr>
+            ) : (
             filteredOrders.map((order) => (
             <tr key={order.id}>
                 <td className="p-2 border">{order.id}</td>
@@ -67,6 +85,7 @@ const OrderList = () => {
                 <td className="p-2 border">{order.price}</td>
                 <td className="p-2 border">{order.quantity}</td>
                 <td className="p-2 border">{order.status}</td>
+                <td className="p-2 border">{new Date(order.createdAt).toLocaleString()}</td>
             </tr>
             ))
         )}

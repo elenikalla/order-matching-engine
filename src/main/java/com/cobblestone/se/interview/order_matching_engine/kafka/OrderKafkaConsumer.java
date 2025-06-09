@@ -16,7 +16,6 @@ public class OrderKafkaConsumer {
 
     @KafkaListener(topics = "order-topic", groupId = "order-matching")
     public void consume(OrderRequestDTO dto) {
-        System.out.println("Consumed Order: " + dto);
         matchingService.handle(dto);
     }
 }

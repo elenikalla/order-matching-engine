@@ -1,7 +1,6 @@
 package com.cobblestone.se.interview.order_matching_engine.controller;
 
 import com.cobblestone.se.interview.order_matching_engine.dto.TradeDTO;
-import com.cobblestone.se.interview.order_matching_engine.model.Trade;
 import com.cobblestone.se.interview.order_matching_engine.repository.TradeRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +27,7 @@ public class TradeController {
                         trade.getPrice(),
                         trade.getBuyOrderId(),
                         trade.getSellOrderId(),
-                        trade.getTimestamp()
+                        trade.getCreatedAt()
                 ))
                 .toList();
     }

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderMatchingService {
@@ -128,14 +127,10 @@ public class OrderMatchingService {
         trade.setSellOrderId(sellOrderId);
         trade.setPrice(price);
         trade.setQuantity(quantity);
-        trade.setTimestamp(LocalDateTime.now());
+        trade.setCreatedAt(LocalDateTime.now());
         tradeRepository.save(trade);
 
         logger.info("Trade recorded: {} {} @ {}", symbol, quantity, price);
-    }
-
-    public Optional<Order> findOptionalByClientOrderId(String clientOrderId) {
-        return orderRepository.findByClientOrderId(clientOrderId);
     }
 
     public List<Order> getAllOrders() {

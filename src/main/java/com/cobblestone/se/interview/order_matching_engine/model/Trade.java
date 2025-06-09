@@ -22,5 +22,5 @@ public class Trade {
     private String sellOrderId;
     private double price;
     private int quantity;
-    private LocalDateTime timestamp;
+    private LocalDateTime createdAt;
 }

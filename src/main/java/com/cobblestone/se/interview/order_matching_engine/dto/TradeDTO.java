@@ -1,7 +1,6 @@
 package com.cobblestone.se.interview.order_matching_engine.dto;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class TradeDTO {
 
@@ -11,16 +10,16 @@ public class TradeDTO {
     public double price;
     public String buyOrderId;
     public String sellOrderId;
-    public LocalDateTime timestamp;
+    public LocalDateTime createdAt;
 
     public TradeDTO(Long id, String symbol, int quantity, double price,
-                    String buyOrderId, String sellOrderId, LocalDateTime timestamp) {
+                    String buyOrderId, String sellOrderId, LocalDateTime createdAt) {
         this.id = id;
         this.symbol = symbol;
         this.quantity = quantity;
         this.price = price;
         this.buyOrderId = buyOrderId;
         this.sellOrderId = sellOrderId;
-        this.timestamp = timestamp;
+        this.createdAt = createdAt;
     }
 }
